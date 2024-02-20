@@ -22,6 +22,7 @@ let persons = [
         "number": "39-23-6423122"
     }
 ]
+const generateId = (max) => Math.floor(Math.random() * max);
 app.use(express.json())
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
@@ -37,6 +38,20 @@ app.get('/api/persons/:id', (request, response) => {
     } else {
         response.status(404).end()
     }
+})
+app.post('/api/persons', (request, response) => {
+    const body = request.body
+    if (!body.content) {
+        return response.status(400).json({
+            error: 'content missing'
+        })
+    }
+    const person = {
+        content: body.content,
+        id: generateId(100000000000000000000000000000000000000000000000000000000),
+    }
+    persons = persons.concat(person)
+    response.json(persons)
 })
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
