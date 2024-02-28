@@ -23,9 +23,20 @@ let persons = [
         "number": "39-23-6423122"
     }
 ]
-app.use(morgan('tiny'));
+//app.use(morgan('tiny'));
+morgan.token('body', function (request) {
+    return JSON.stringify(request.body);
+});
+function requests(req, res, next) {
+    if (req.method === 'POST') {
+        morgan(':method :url :status :res[content-length] - :response-time ms :body')(req, res, next);
+    } else {
+        morgan('tiny')(req, res, next);
+    }
+}
+app.use(requests);
+app.use(express.json());
 const generateId = (max) => Math.floor(Math.random() * max);
-app.use(express.json())
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
 })
