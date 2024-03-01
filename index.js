@@ -23,7 +23,6 @@ let persons = [
         "number": "39-23-6423122"
     }
 ]
-//app.use(morgan('tiny'));
 morgan.token('body', function (request) {
     return JSON.stringify(request.body);
 });
@@ -34,12 +33,12 @@ function requests(req, res, next) {
         morgan('tiny')(req, res, next);
     }
 }
+const cors = require('cors');
+app.use(cors());
 app.use(requests);
+app.use(express.static('dist'))
 app.use(express.json());
 const generateId = (max) => Math.floor(Math.random() * max);
-app.get('/', (request, response) => {
-    response.send('<h1>Hello World!</h1>')
-})
 app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
@@ -79,8 +78,12 @@ app.post('/api/persons', (request, response) => {
 })
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
+    personDeleted = persons.find(person => person.id ===id);
     persons = persons.filter(person => person.id !== id)
-    response.status(204).end()
+    response.json (personDeleted);
+})
+app.put('/api/persons/:id', (request, response) => {
+    response.status(405).send({error: 'Method Not Allowed'});
 })
 app.get('/info', (request, response)=>{
     const date = new Date().toUTCString();
