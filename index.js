@@ -74,7 +74,7 @@ app.post('/api/persons', (request, response) => {
         id: generateId(100000000000000000000000000000000000000000000000000000000),
     }
     persons = persons.concat(person)
-    response.json(persons)
+    response.json(person)
 })
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
