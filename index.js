@@ -62,8 +62,25 @@ app.delete('/api/persons/:id', (request, response, next) => {
             }
         }).catch(error => next(error))
 })
-app.put('/api/persons/:id', (request, response) => {
-    response.status(405).send({error: 'Method Not Allowed'});
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+    if (!body.name) {
+        return response.status(400).json({
+            error: 'name missing'
+        })
+    }
+    const person = {
+        name: body.name,
+        number: body.number,
+    }
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+        .then(updatedPerson => {
+            if (updatedPerson){
+                response.json(updatedPerson)
+            }else{
+                response.status(404).end()
+            }
+        }).catch(error => next(error))
 })
 app.get('/info', (request, response)=>{
     const date = new Date().toUTCString();
