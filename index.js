@@ -23,17 +23,14 @@ app.get('/api/persons', (request, response) => {
         response.json(people)
     })
 })
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id).then( person =>{
         if (person){
             response.json(person)
         }else{
             response.status(404).end()
         }
-    }).catch(error => {
-        console.log(error)
-        response.status(400).send({ error: 'malformatted id' })
-    })
+    }).catch(error => next(error))
 })
 app.post('/api/persons', (request, response) => {
     const body = request.body
@@ -55,7 +52,7 @@ app.post('/api/persons', (request, response) => {
         response.json(savedPerson)
     })
 })
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndDelete(request.params.id)
         .then(person => {
             if (person){
@@ -63,10 +60,7 @@ app.delete('/api/persons/:id', (request, response) => {
             }else{
                 response.status(404).end()
             }
-        }).catch(error =>{
-            console.log(error)
-            response.status(400).send({ error: 'malformatted id' })
-        })
+        }).catch(error => next(error))
 })
 app.put('/api/persons/:id', (request, response) => {
     response.status(405).send({error: 'Method Not Allowed'});
@@ -80,6 +74,14 @@ app.get('/info', (request, response)=>{
         response.send(info)
     })
 })
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+    next(error)
+}
+app.use(errorHandler)
 const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
